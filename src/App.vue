@@ -1,119 +1,82 @@
 <template>
   <div class="shopping-cart">
-    <h1>Harry's Shopping Cart</h1>
+    <h1>{{ username }}'s Shopping Cart</h1>
     <div class="cart-container">
       <div class="cart-list">
-        <div class="cart-list-item">
-          <img src="@/assets/img/DragonLiver.png" alt="Dragon Liver" class="product-image">
+        <div
+          class="cart-list-item"
+          v-for="item in shoppingCartItems"
+          :key="item.id"
+        >
+          <img
+            :src="item.image"
+            :alt="item.productName"
+            class="product-image"
+          />
           <div class="item-details-with-actions">
             <div class="item-details">
-              <h2>Dragon Liver</h2>
-              <p class="price">$1500</p>
-              <p class="in-stock-status"> <i class="fa-solid fa-check"></i> In stock</p>
+              <h2>{{ item.productName }}</h2>
+              <p class="price">${{ item.price }}</p>
+              <p class="in-stock-status" v-if="item.isInStock">
+                <i class="fa-solid fa-check"></i> In stock
+              </p>
+              <p class="on-backorder-status" v-else>
+                <i class="fa-solid fa-hourglass-half"></i> On backorder
+              </p>
             </div>
             <div class="item-actions">
               <div class="quantity-selector">
-                <button class="quantity-change-button">−</button>
-                <input type="text" class="quantity-input" value="3" aria-label="quantity">
-                <button class="quantity-change-button">+</button>
+                <button
+                  class="quantity-change-button"
+                  @click="decreaseOne(item.id)"
+                >
+                  −
+                </button>
+                <input
+                  type="text"
+                  class="quantity-input"
+                  v-model.number="item.quantity"
+                  aria-label="quantity"
+                />
+                <button
+                  class="quantity-change-button"
+                  @click="increaseOne(item.id)"
+                >
+                  +
+                </button>
               </div>
-              <button class="remove-item">✕</button>
-            </div>
-          </div>
-        </div>
-        <div class="cart-list-item">
-          <img src="@/assets/img/GoldenSnitch.png" alt="Golden Snitch" class="product-image">
-          <div class="item-details-with-actions">
-            <div class="item-details">
-              <h2>Golden Snitch</h2>
-              <p class="price">$600</p>
-              <p class="in-stock-status"> <i class="fa-solid fa-check"></i> In stock</p>
-            </div>
-            <div class="item-actions">
-              <div class="quantity-selector">
-                <button class="quantity-change-button">−</button>
-                <input type="text" class="quantity-input" value="2" aria-label="quantity">
-                <button class="quantity-change-button">+</button>
-              </div>
-              <button class="remove-item">✕</button>
-            </div>
-          </div>
-        </div>
-        <div class="cart-list-item">
-          <img src="@/assets/img/UnicornTailHair.png" alt="Unicorn Tail Hair" class="product-image">
-          <div class="item-details-with-actions">
-            <div class="item-details">
-              <h2>Unicorn Tail Hair</h2>
-              <p class="price">$1200</p>
-              <p class="on-backorder-status"> <i class="fa-solid fa-hourglass-half"></i> On backorder</p>
-            </div>
-            <div class="item-actions">
-              <div class="quantity-selector">
-                <button class="quantity-change-button">−</button>
-                <input type="text" class="quantity-input" value="1" aria-label="quantity">
-                <button class="quantity-change-button">+</button>
-              </div>
-              <button class="remove-item">✕</button>
-            </div>
-          </div>
-        </div>
-        <div class="cart-list-item">
-          <img src="@/assets/img/Wand.jpg" alt="Wand" class="product-image">
-          <div class="item-details-with-actions">
-            <div class="item-details">
-              <h2>Wand</h2>
-              <p class="price">$2000</p>
-              <p class="in-stock-status"> <i class="fa-solid fa-check"></i> In stock</p>
-            </div>
-            <div class="item-actions">
-              <div class="quantity-selector">
-                <button class="quantity-change-button">−</button>
-                <input type="text" class="quantity-input" value="1" aria-label="quantity">
-                <button class="quantity-change-button">+</button>
-              </div>
-              <button class="remove-item">✕</button>
-            </div>
-          </div>
-        </div>
-        <div class="cart-list-item">
-          <img src="@/assets/img/Nimbus2000.jpg" alt="Nimbus 2000" class="product-image">
-          <div class="item-details-with-actions">
-            <div class="item-details">
-              <h2>Nimbus 2000</h2>
-              <p class="price">$5000</p>
-              <p class="in-stock-status"> <i class="fa-solid fa-check"></i> In stock</p>
-            </div>
-            <div class="item-actions">
-              <div class="quantity-selector">
-                <button class="quantity-change-button">−</button>
-                <input type="text" class="quantity-input" value="1" aria-label="quantity">
-                <button class="quantity-change-button">+</button>
-              </div>
-              <button class="remove-item">✕</button>
+              <button class="remove-item" @click="removeItem(item.id)">
+                ✕
+              </button>
             </div>
           </div>
         </div>
       </div>
       <div class="order-summary">
         <h2>Order summary</h2>
-        <button class="toggle-details-button">Hide Details</button>
-        <div class="">
+        <button
+          class="toggle-details-button"
+          @click="hideDetails = !hideDetails"
+        >
+          {{ hideDetails ? 'Show Details' : 'Hide Details' }}
+        </button>
+        <div :class="{ 'hide-order-details': hideDetails }">
           <div class="summary-item">
             <span>Subtotal</span>
-            <span>$13900</span>
+            <span>${{ subtotal }}</span>
           </div>
           <div class="summary-item">
             <span>Shipping estimate</span>
-            <span>$100</span>
+            <span>${{ shippingEstimate }}</span>
           </div>
           <div class="summary-item">
             <span>Tax estimate</span>
-            <span>$1112</span>
+            <span>${{ taxEstimate }}</span>
           </div>
         </div>
         <div class="summary-total">
           <strong>Order total</strong>
-          <strong>$15112</strong>
+          <strong>${{ total }}</strong>
         </div>
         <button class="checkout-button">Checkout</button>
       </div>
@@ -122,7 +85,104 @@
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue'
 
+let username = 'Harry'
+let shoppingCartItems = ref([
+  {
+    id: 1,
+    productName: 'Dragon Liver',
+    price: 1500,
+    isInStock: true,
+    quantity: 3,
+    image: 'src/assets/img/DragonLiver.png'
+  },
+  {
+    id: 2,
+    productName: 'Golden Snitch',
+    price: 600,
+    isInStock: true,
+    quantity: 2,
+    image: ' src/assets/img/GoldenSnitch.png'
+  },
+  {
+    id: 3,
+    productName: 'Unicorn Tail Hair',
+    price: 1200,
+    isInStock: false,
+    quantity: 1,
+    image: 'src/assets/img/UnicornTailHair.png'
+  },
+  {
+    id: 4,
+    productName: 'Wand',
+    price: 2000,
+    isInStock: true,
+    quantity: 1,
+    image: 'src/assets/img/Wand.jpg'
+  },
+  {
+    id: 5,
+    productName: 'Nimbus 2000',
+    price: 5000,
+    isInStock: true,
+    quantity: 1,
+    image: 'src/assets/img/Nimbus2000.jpg'
+  }
+])
+
+let hideDetails = ref(false)
+
+function decreaseOne(id) {
+  shoppingCartItems.value.some((item) => {
+    if (item.id == id && item.quantity != 0) {
+      item.quantity = item.quantity - 1
+    }
+  })
+}
+
+function increaseOne(id) {
+  shoppingCartItems.value.some((item) => {
+    if (item.id == id) {
+      item.quantity = item.quantity + 1
+    }
+  })
+}
+
+function removeItem(id) {
+  // Step 1: find the index of the item to be deleted
+  let index = shoppingCartItems.value.findIndex((item) => {
+    return item.id == id
+  })
+  // Step 2: delete this item from the list
+  shoppingCartItems.value.splice(index, 1)
+}
+let subtotal = computed(() =>
+  shoppingCartItems.value.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  )
+)
+
+let shippingEstimate = computed(() => (subtotal.value > 10000 ? 100 : 50))
+
+let taxEstimate = computed(() => subtotal.value * 0.08)
+
+let total = computed(
+  () => subtotal.value + shippingEstimate.value + taxEstimate.value
+)
+
+// Automatically save to localStorage whenever any part of shoppingCartItems changes
+watch(
+  shoppingCartItems,
+  () => {
+    localStorage.setItem(
+      'hogwartsShoppingCart',
+      JSON.stringify(shoppingCartItems.value)
+    )
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>
@@ -286,7 +346,7 @@ h1 {
 }
 
 .checkout-button {
-  background-color: #4F46E5;
+  background-color: #4f46e5;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -299,7 +359,7 @@ h1 {
 }
 
 .checkout-button:hover {
-  background-color: #4138D9;
+  background-color: #4138d9;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 </style>
