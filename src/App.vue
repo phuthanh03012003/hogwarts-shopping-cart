@@ -143,6 +143,17 @@ let total = computed(
   () => subtotal.value + shippingEstimate.value + taxEstimate.value
 )
 
+watch(
+  shoppingCartItems,
+  () => {
+    localStorage.setItem(
+      'hogwartsShoppingCart',
+      JSON.stringify(shoppingCartItems.value)
+    )
+  },
+  { deep: true }
+)
+
 </script>
 
 <style scoped>
