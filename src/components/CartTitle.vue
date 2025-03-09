@@ -1,8 +1,9 @@
 <template>
-  <h1>Harry's Shopping Cart</h1>
+  <h1>{{ username }}'s Shopping Cart</h1>
 </template>
 
 <script setup>
+defineProps(['username'])
 </script>
 
 <style scoped>
